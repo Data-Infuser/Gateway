@@ -6,8 +6,9 @@ import (
 )
 
 func (h *Handler) Register(apiGroup *echo.Group) {
-	keyMiddleware := middleware.KeyExtractor()
-	apiGroup.GET("/:nameSpace/:service", h.ExecuteApi, keyMiddleware)
-	apiGroup.GET("/:nameSpace/:service/meta", h.ExecuteApi, keyMiddleware)
+	apiGroup.Use(middleware.KeyExtractor())
+
+	apiGroup.GET("/:nameSpace/:service", h.ExecuteApi)
+	apiGroup.GET("/:nameSpace/:service/meta", h.ExecuteApi)
 }
 
