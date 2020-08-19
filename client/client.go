@@ -37,15 +37,14 @@ func NewGRPCPool() *Pool{
 	factory = func() (*grpc.ClientConn, error) {
 		conn, err := grpc.Dial(*serverAddr, grpc.WithInsecure())
 		if err != nil {
-			glog.Fatalf("Failed to start gRPC connection: %v", err)
+			glog.Infoln("Failed to start gRPC connection: %v", err)
 		}
-		glog.Infof("Connected to employee at %s", serverAddr)
 		return conn, err
 	}
 
 	pool, err := New(factory, 10, 50, time.Second)
 	if err != nil {
-		glog.Fatalf("Failed to create gRPC pool: %v", err)
+		glog.Infoln("Failed to create gRPC pool: %v", err)
 	}
 
 	return pool
