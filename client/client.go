@@ -2,7 +2,9 @@ package client
 
 import (
 	"flag"
+	"fmt"
 	"github.com/golang/glog"
+	"gitlab.com/promptech1/infuser-gateway/config"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/testdata"
@@ -10,19 +12,16 @@ import (
 )
 
 var (
-	tls                = flag.Bool("tls", false, "Connection uses TLS if true, else plain TCP")
-	caFile             = flag.String("ca_file", "", "The file containing the CA root cert file")
-	serverAddr         = flag.String("server_addr", "localhost:9090", "The server address in the format of host:port")
 	serverHostOverride = flag.String("server_host_override", "x.test.youtube.com", "The server name used to verify the hostname returned by the TLS handshake")
 )
 
-func NewGRPCPool() *Pool{
+func NewGRPCPool(conf *config.Config) *Pool {
 	var opts []grpc.DialOption
-	if *tls {
-		if *caFile == "" {
-			*caFile = testdata.Path("ca.pem")
+	if conf.Author.Tls {
+		if conf.Author.CaFile == "" {
+			conf.Author.CaFile = testdata.Path("ca.pem")
 		}
-		creds, err := credentials.NewClientTLSFromFile(*caFile, *serverHostOverride)
+		creds, err := credentials.NewClientTLSFromFile(conf.Author.CaFile, *serverHostOverride)
 		if err != nil {
 			glog.Fatalf("Failed to create TLS credentials %v", err)
 		}
@@ -35,7 +34,8 @@ func NewGRPCPool() *Pool{
 
 	var factory Factory
 	factory = func() (*grpc.ClientConn, error) {
-		conn, err := grpc.Dial(*serverAddr, grpc.WithInsecure())
+		serverAddr := fmt.Sprintf("%s:%d", conf.Author.Host, conf.Author.Port)
+		conn, err := grpc.Dial(serverAddr, grpc.WithInsecure())
 		if err != nil {
 			glog.Infoln("Failed to start gRPC connection: %v", err)
 		}

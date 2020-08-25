@@ -1,13 +1,23 @@
 package main
 
 import (
+	"log"
+	"os"
+
 	"gitlab.com/promptech1/infuser-gateway/client"
+	"gitlab.com/promptech1/infuser-gateway/config"
 	"gitlab.com/promptech1/infuser-gateway/handler"
 	"gitlab.com/promptech1/infuser-gateway/router"
 )
 
 func main() {
-	grpcPool := client.NewGRPCPool()
+	conf := new(config.Config)
+	if err := conf.InitConf(); err != nil {
+		log.Printf("Fail load config: %s", err.Error())
+		os.Exit(-1)
+	}
+
+	grpcPool := client.NewGRPCPool(conf)
 
 	r := router.New()
 

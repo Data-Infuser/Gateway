@@ -1,7 +1,9 @@
 # 별도 repo를 통한 proto 관리
 infuser-protobuf
 
-config/database.yaml
+config/config-dev.yaml
+config/config-stage.yaml
+config/config-prod.yaml
 
 .DS_Store
 .idea

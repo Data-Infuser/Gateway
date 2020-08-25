@@ -1,0 +1,5 @@
+author:
+  host: "localhost"
+  port: 9090
+  tls: false
+  caFile: ""
