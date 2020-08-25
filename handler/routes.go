@@ -8,7 +8,7 @@ import (
 func (h *Handler) Register(apiGroup *echo.Group) {
 	apiGroup.Use(middleware.KeyExtractor())
 
-	apiGroup.GET("/:nameSpace/:service", h.ExecuteApi)
-	apiGroup.GET("/:nameSpace/:service/meta", h.ExecuteApi)
+	apiGroup.GET("/:nameSpace/:operation", h.ExecuteApi)
+	apiGroup.GET("/:nameSpace/:operation/meta", h.ExecuteApi)
 }
 

@@ -25,7 +25,7 @@ func (h *Handler) ExecuteApi(c echo.Context) error {
 
 	apiAuthRes, err := client.Auth(ctx, &grpc_author.ApiAuthReq{
 		NameSpace: c.Param("nameSpace"),
-		OperationUrl: c.Param("service"),
+		OperationUrl: c.Param("operation"),
 		Token: token,
 	})
 
