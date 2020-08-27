@@ -11,6 +11,9 @@ import (
 )
 
 func main() {
+	ballast := make([]byte, 10<<24)
+	_ = ballast
+
 	conf := new(config.Config)
 	if err := conf.InitConf(); err != nil {
 		log.Printf("Fail load config: %s", err.Error())

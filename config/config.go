@@ -24,9 +24,6 @@ func (ctx *Config) InitConf() error {
 	var file []byte
 	var err error
 
-	ballast := make([]byte, 10<<30)
-	_ = ballast
-
 	var fileName string
 	env := os.Getenv("GATEWAY_ENV")
 	log.Printf("Init config with '%s' environment", env)
