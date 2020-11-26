@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"strconv"
 
 	"github.com/sirupsen/logrus"
 	"gitlab.com/promptech1/infuser-gateway/constant"
@@ -13,6 +14,7 @@ import (
 type Context struct {
 	Logger *logrus.Entry
 	Author Author `yaml:"author"`
+	Server Server `yaml:"server"`
 }
 
 type Author struct {
@@ -22,12 +24,31 @@ type Author struct {
 	CaFile string `yaml:"caFile"`
 }
 
-func (ctx *Context) InitContext() error {
-	logger := logrus.New()
+type Server struct {
+	Host string `yaml:"host"`
+	Port string `yaml:"Port"`
+}
 
-	var file []byte
-	var err error
+func (ctx *Config) getConfEnv() {
+	var authorConfig *Author
+	var serverConfig *Server
 
+	authorConfig = new(Author)
+	serverConfig = new(Server)
+
+	authorConfig.Host = os.Getenv("GATEWAY_AUTHOR_CONFIG_HOST")
+	authorConfig.Port, _ = strconv.Atoi(os.Getenv("GATEWAY_AUTHOR_CONFIG_PORT"))
+	authorConfig.Tls, _ = strconv.ParseBool(os.Getenv("GATEWAY_AUTHOR_CONFIG_TLS"))
+	authorConfig.CaFile = os.Getenv("GATEWAY_AUTHOR_CONFIG_CA_FILE")
+
+	serverConfig.Host = os.Getenv("GATEWAY_SERVER_CONFIG_HOST")
+	serverConfig.Port = os.Getenv("GATEWAY_SERVER_CONFIG_PORT")
+
+	ctx.Author = *authorConfig
+	ctx.Server = *serverConfig
+}
+
+func (ctx *Config) InitConf() error {
 	var fileName string
 	env := os.Getenv("GATEWAY_ENV")
 
@@ -49,11 +70,18 @@ func (ctx *Context) InitContext() error {
 		"id":  os.Getpid(),
 	})
 
-	if file, err = ioutil.ReadFile(fileName); err != nil {
-		return err
-	}
-	if err = yaml.Unmarshal(file, ctx); err != nil {
-		return err
+	if _, err := os.Stat(fileName); os.IsNotExist(err) {
+		ctx.getConfEnv()
+	} else {
+		var file []byte
+		var err error
+
+		if file, err = ioutil.ReadFile(fileName); err != nil {
+			return err
+		}
+		if err = yaml.Unmarshal(file, ctx); err != nil {
+			return err
+		}
 	}
 
 	ctx.Logger.Info(fmt.Sprintf("Init configuration for '%s' env successfully =============", env))
