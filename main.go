@@ -14,13 +14,13 @@ func main() {
 	ballast := make([]byte, 10<<24)
 	_ = ballast
 
-	conf := new(config.Config)
-	if err := conf.InitConf(); err != nil {
+	ctx := new(config.Context)
+	if err := ctx.InitContext(); err != nil {
 		log.Printf("Fail load config: %s", err.Error())
 		os.Exit(-1)
 	}
 
-	grpcPool := client.NewGRPCPool(conf)
+	grpcPool := client.NewGRPCPool(ctx)
 
 	r := router.New()
 
