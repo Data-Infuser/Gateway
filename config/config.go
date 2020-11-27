@@ -11,7 +11,7 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-type Context struct {
+type Config struct {
 	Logger *logrus.Entry
 	Author Author `yaml:"author"`
 	Server Server `yaml:"server"`
@@ -51,6 +51,8 @@ func (ctx *Config) getConfEnv() {
 func (ctx *Config) InitConf() error {
 	var fileName string
 	env := os.Getenv("GATEWAY_ENV")
+
+	logger := logrus.New()
 
 	if len(env) > 0 && env == constant.ServiceProd {
 		logger.SetLevel(logrus.InfoLevel)

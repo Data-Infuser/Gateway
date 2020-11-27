@@ -15,7 +15,7 @@ var (
 	serverHostOverride = flag.String("server_host_override", "x.test.youtube.com", "The server name used to verify the hostname returned by the TLS handshake")
 )
 
-func NewGRPCPool(ctx *config.Context) *Pool {
+func NewGRPCPool(ctx *config.Config) *Pool {
 	var opts []grpc.DialOption
 	if ctx.Author.Tls {
 		if ctx.Author.CaFile == "" {
