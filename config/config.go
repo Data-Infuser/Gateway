@@ -1,3 +1,4 @@
+// config: Logger, Gateway 서버, 인증서버에 대한 설정 정의
 package config
 
 import (
@@ -29,6 +30,7 @@ type Server struct {
 	Port string `yaml:"Port"`
 }
 
+// 구동 환경(Dev, Stage, Prod)에 따른 설정 정보 정의
 func (ctx *Config) getConfEnv() {
 	var authorConfig *Author
 	var serverConfig *Server
@@ -48,6 +50,7 @@ func (ctx *Config) getConfEnv() {
 	ctx.Server = *serverConfig
 }
 
+// Configration 정의: Log Level, 환경에 따른 Conf 설정 파일 Load
 func (ctx *Config) InitConf() error {
 	var fileName string
 	env := os.Getenv("GATEWAY_ENV")

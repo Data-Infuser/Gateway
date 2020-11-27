@@ -1,36 +1,38 @@
+// enum: 열거형 자료 정의
 package enum
 
 import grpc_author "gitlab.com/promptech1/infuser-gateway/infuser-protobuf/gen/proto/author"
 
 type ResCode int32
 
+// API 응답 결과에 대한 상수 정의
 const (
-	Valid ResCode = 0
-	InternalException ResCode = -1
-	ParameterException ResCode = -2
+	Valid               ResCode = 0
+	InternalException   ResCode = -1
+	ParameterException  ResCode = -2
 	UnregisteredService ResCode = -3
-	UnregisteredToken ResCode = -4
-	TerminatedService ResCode = -9
-	LimitExceeded ResCode = -10
-	Unauthorized ResCode = -401
-	Unknown ResCode = -999
+	UnregisteredToken   ResCode = -4
+	TerminatedService   ResCode = -9
+	LimitExceeded       ResCode = -10
+	Unauthorized        ResCode = -401
+	Unknown             ResCode = -999
 )
 
 var (
-	ProtoCodeMap = map[grpc_author.ApiAuthRes_Code]ResCode {
-		grpc_author.ApiAuthRes_VALID: Valid,
-		grpc_author.ApiAuthRes_INTERNAL_EXCEPTION: InternalException,
-		grpc_author.ApiAuthRes_PARAMETER_EXCEPTION: ParameterException,
+	ProtoCodeMap = map[grpc_author.ApiAuthRes_Code]ResCode{
+		grpc_author.ApiAuthRes_VALID:                Valid,
+		grpc_author.ApiAuthRes_INTERNAL_EXCEPTION:   InternalException,
+		grpc_author.ApiAuthRes_PARAMETER_EXCEPTION:  ParameterException,
 		grpc_author.ApiAuthRes_UNREGISTERED_SERVICE: UnregisteredService,
-		grpc_author.ApiAuthRes_UNREGISTERED_TOKEN: UnregisteredToken,
-		grpc_author.ApiAuthRes_TERMINATED_SERVICE: TerminatedService,
-		grpc_author.ApiAuthRes_LIMIT_EXCEEDED: LimitExceeded,
-		grpc_author.ApiAuthRes_UNAUTHORIZED: Unauthorized,
-		grpc_author.ApiAuthRes_UNKNOWN: Unknown,
+		grpc_author.ApiAuthRes_UNREGISTERED_TOKEN:   UnregisteredToken,
+		grpc_author.ApiAuthRes_TERMINATED_SERVICE:   TerminatedService,
+		grpc_author.ApiAuthRes_LIMIT_EXCEEDED:       LimitExceeded,
+		grpc_author.ApiAuthRes_UNAUTHORIZED:         Unauthorized,
+		grpc_author.ApiAuthRes_UNKNOWN:              Unknown,
 	}
 )
 
-var ResCodes = [...]ResCode {
+var ResCodes = [...]ResCode{
 	Valid,
 	InternalException,
 	ParameterException,
@@ -42,6 +44,7 @@ var ResCodes = [...]ResCode {
 	Unknown,
 }
 
+// Message: 상수코드에 대한 메시지를 반환
 func (c ResCode) Message() string {
 	switch c {
 	case Valid:
@@ -65,6 +68,7 @@ func (c ResCode) Message() string {
 	}
 }
 
+// HttpCode: 상수코드에 http status 코드 반환
 func (c ResCode) HttpCode() int {
 	switch c {
 	case Valid:
@@ -88,10 +92,12 @@ func (c ResCode) HttpCode() int {
 	}
 }
 
+// Valid: 유효한 처리인지를 판별하여 그 결과를 true/false 형태로 반환
 func (c ResCode) Valid() bool {
 	return c == Valid
 }
 
+// FindResCode: gRPC의 응답으로 부터 기 정의된 응답코드인지를 확인하여 enum에 정의된 code를 반환
 func FindResCode(grpcCode grpc_author.ApiAuthRes_Code) ResCode {
 	if val, ok := ProtoCodeMap[grpcCode]; ok {
 		return val

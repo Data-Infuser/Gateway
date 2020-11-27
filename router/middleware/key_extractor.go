@@ -1,3 +1,4 @@
+// middleware: handler 모듈 구동에 필요한 middleware 정의
 package middleware
 
 import (
@@ -15,7 +16,7 @@ var (
 	ErrTokenMissing = echo.NewHTTPError(http.StatusUnauthorized, "missing service key")
 )
 
-
+// KeyExtractor: Rest API를 통해 전송된(Request Header 또는 Query Param) 사용자 인증키를 추출
 func KeyExtractor() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		headerExtractor := keyFromHeader("Authorization", "Infuser")
@@ -36,20 +37,21 @@ func KeyExtractor() echo.MiddlewareFunc {
 				return next(c)
 			}
 
-			return c.JSON(http.StatusUnauthorized, map[string]interface{} {
+			return c.JSON(http.StatusUnauthorized, map[string]interface{}{
 				"code": enum.Unauthorized,
-				"msg": "인증키는 필수 항목 입니다.",
+				"msg":  "인증키는 필수 항목 입니다.",
 			})
 		}
 	}
 }
 
+// keyFromHeader: request header로 부터 인증키 추출
 func keyFromHeader(header string, authScheme string) keyExtractor {
 	return func(c echo.Context) (string, error) {
 		// Header로 부터 api key 추출
 		auth := c.Request().Header.Get(header)
 		l := len(authScheme)
-		if len(auth) > l + 1 && auth[:l] == authScheme {
+		if len(auth) > l+1 && auth[:l] == authScheme {
 			return auth[l+1:], nil
 		}
 
@@ -57,6 +59,7 @@ func keyFromHeader(header string, authScheme string) keyExtractor {
 	}
 }
 
+// keyFromQuery: query parameter로 부터 인증키 추출
 func keyFromQuery(authScheme string) keyExtractor {
 	return func(c echo.Context) (string, error) {
 		auth := c.QueryParam(authScheme)

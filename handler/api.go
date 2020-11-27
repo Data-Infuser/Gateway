@@ -1,3 +1,4 @@
+// handler: Rest API 요청 처리 및 gRPC 통신을 통한 데이터 교환 수행 package
 package handler
 
 import (
@@ -6,6 +7,7 @@ import (
 	grpc_author "gitlab.com/promptech1/infuser-gateway/infuser-protobuf/gen/proto/author"
 )
 
+// ExecuteApi: 활용자의 Rest API 요청을 처리함. gRPC를 통해 필요한 데이터를 교환하고 그결과를 JSON 형태로 반환함
 func (h *Handler) ExecuteApi(c echo.Context) error {
 	ctx := c.Request().Context()
 	c.Logger().Debug("Test logger ================")

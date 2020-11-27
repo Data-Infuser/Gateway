@@ -1,3 +1,4 @@
+// client:  Author 서버와의 통신을 위한 gRPC Client 정의
 package client
 
 import (
@@ -15,6 +16,7 @@ var (
 	serverHostOverride = flag.String("server_host_override", "x.test.youtube.com", "The server name used to verify the hostname returned by the TLS handshake")
 )
 
+// NewGRPCPool: Config에 정의된 정보를 바탕으로 gRPC client을 생성하고 이를 관리할 수 있는 Pool을 반환함
 func NewGRPCPool(ctx *config.Config) *Pool {
 	var opts []grpc.DialOption
 	if ctx.Author.Tls {
