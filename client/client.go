@@ -16,8 +16,8 @@ var (
 	serverHostOverride = flag.String("server_host_override", "x.test.youtube.com", "The server name used to verify the hostname returned by the TLS handshake")
 )
 
-// NewGRPCPool: Config에 정의된 정보를 바탕으로 gRPC client을 생성하고 이를 관리할 수 있는 Pool을 반환함
-func NewGRPCPool(ctx *config.Config) *Pool {
+// NewGRPCAuthorPool: Config에 정의된 정보를 바탕으로 gRPC client을 생성하고 이를 관리할 수 있는 Pool을 반환함
+func NewGRPCAuthorPool(ctx *config.Config) *Pool {
 	var opts []grpc.DialOption
 	if ctx.Author.Tls {
 		if ctx.Author.CaFile == "" {
@@ -37,6 +37,42 @@ func NewGRPCPool(ctx *config.Config) *Pool {
 	var factory Factory
 	factory = func() (*grpc.ClientConn, error) {
 		serverAddr := fmt.Sprintf("%s:%d", ctx.Author.Host, ctx.Author.Port)
+		conn, err := grpc.Dial(serverAddr, grpc.WithInsecure())
+		if err != nil {
+			ctx.Logger.Fatalf("Failed to start gRPC connection: %v", err)
+		}
+		return conn, err
+	}
+
+	pool, err := New(factory, 10, 50, time.Second)
+	if err != nil {
+		ctx.Logger.Fatalf("Failed to create gRPC pool: %v", err)
+	}
+
+	return pool
+}
+
+// NewGRPCAuthorPool: Config에 정의된 정보를 바탕으로 gRPC client을 생성하고 이를 관리할 수 있는 Pool을 반환함
+func NewGRPCExecutorPool(ctx *config.Config) *Pool {
+	var opts []grpc.DialOption
+	if ctx.Executor.Tls {
+		if ctx.Executor.CaFile == "" {
+			ctx.Executor.CaFile = testdata.Path("ca.pem")
+		}
+		creds, err := credentials.NewClientTLSFromFile(ctx.Executor.CaFile, *serverHostOverride)
+		if err != nil {
+			ctx.Logger.Fatalf("Failed to create TLS credentials %v", err)
+		}
+		opts = append(opts, grpc.WithTransportCredentials(creds))
+	} else {
+		opts = append(opts, grpc.WithInsecure())
+	}
+
+	opts = append(opts, grpc.WithBlock())
+
+	var factory Factory
+	factory = func() (*grpc.ClientConn, error) {
+		serverAddr := fmt.Sprintf("%s:%d", ctx.Executor.Host, ctx.Executor.Port)
 		conn, err := grpc.Dial(serverAddr, grpc.WithInsecure())
 		if err != nil {
 			ctx.Logger.Fatalf("Failed to start gRPC connection: %v", err)

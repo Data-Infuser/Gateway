@@ -20,12 +20,13 @@ func main() {
 		os.Exit(-1)
 	}
 
-	grpcPool := client.NewGRPCPool(conf)
+	grpcAuthorPool := client.NewGRPCAuthorPool(conf)
+	grpcExecutorPool := client.NewGRPCExecutorPool(conf)
 
 	r := router.New()
 
 	apiGroup := r.Group("/api")
-	h := handler.NewHandler(grpcPool)
+	h := handler.NewHandler(grpcAuthorPool, grpcExecutorPool)
 	h.Register(apiGroup)
 
 	r.Logger.Fatal(r.Start(conf.Server.Host + ":" + conf.Server.Port))

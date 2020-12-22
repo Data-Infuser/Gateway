@@ -2,9 +2,12 @@
 package handler
 
 import (
+	"encoding/json"
+
 	"github.com/labstack/echo/v4"
 	"gitlab.com/promptech1/infuser-gateway/enum"
 	grpc_author "gitlab.com/promptech1/infuser-gateway/infuser-protobuf/gen/proto/author"
+	grpc_executor "gitlab.com/promptech1/infuser-gateway/infuser-protobuf/gen/proto/executor"
 )
 
 // ExecuteApi: 활용자의 Rest API 요청을 처리함. gRPC를 통해 필요한 데이터를 교환하고 그결과를 JSON 형태로 반환함
@@ -14,7 +17,7 @@ func (h *Handler) ExecuteApi(c echo.Context) error {
 
 	token, _ := c.Get("Token").(string)
 
-	conn, err := h.pool.Get(ctx)
+	authConn, err := h.authPool.Get(ctx)
 	if err != nil {
 		code := enum.InternalException
 		return c.JSON(code.HttpCode(), map[string]interface{}{
@@ -22,12 +25,23 @@ func (h *Handler) ExecuteApi(c echo.Context) error {
 			"msg":  code.Message(),
 		})
 	}
-	defer conn.Close()
+	defer authConn.Close()
 
-	client := grpc_author.NewApiAuthServiceClient(conn)
+	executorConn, err := h.executorPool.Get(ctx)
+	if err != nil {
+		code := enum.InternalException
+		return c.JSON(code.HttpCode(), map[string]interface{}{
+			"code": code,
+			"msg":  code.Message(),
+		})
+	}
+	defer executorConn.Close()
 
-	apiAuthRes, err := client.Auth(ctx, &grpc_author.ApiAuthReq{
-		NameSpace:    c.Param("nameSpace"),
+	authorClient := grpc_author.NewApiAuthServiceClient(authConn)
+	executorClient := grpc_executor.NewApiResultServiceClient(executorConn)
+
+	apiAuthRes, err := authorClient.Auth(ctx, &grpc_author.ApiAuthReq{
+		NameSpace:    c.Param("nameSpace") + "/" + c.Param("version"),
 		OperationUrl: c.Param("operation"),
 		Token:        token,
 	})
@@ -45,12 +59,33 @@ func (h *Handler) ExecuteApi(c echo.Context) error {
 			"msg":  code.Message(),
 		})
 	} else {
-		// TODO: Executer 연계를 통한 데이터 fetch 수행 필요함
-
-		return c.JSON(code.HttpCode(), map[string]interface{}{
-			"code": code,
-			"msg":  code.Message(),
+		apiResult, err := executorClient.GetApiResult(ctx, &grpc_executor.ApiRequest{
+			StageId:   1,
+			ServiceId: 1,
+			Page:      1,
+			PerPage:   10,
 		})
+
+		if err != nil {
+			return c.JSON(code.HttpCode(), map[string]interface{}{
+				"code": code,
+				"msg":  code.Message(),
+			})
+		} else {
+			var datas [10]map[string]interface{}
+
+			for i, v := range apiResult.Data {
+				json.Unmarshal([]byte(v), &datas[i])
+			}
+
+			return c.JSON(code.HttpCode(), map[string]interface{}{
+				"page":         apiResult.Page,
+				"perPage":      apiResult.PerPage,
+				"totalCount":   apiResult.TotalCount,
+				"currentCount": apiResult.CurrentCount,
+				"datas":        datas,
+			})
+		}
 	}
 
 	return nil

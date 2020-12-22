@@ -5,10 +5,11 @@ import (
 )
 
 type Handler struct {
-	pool *client.Pool
+	authPool     *client.Pool
+	executorPool *client.Pool
 }
 
 // NewHandler: gRPC Pool을 매개변수로 한 Handler 객체 생성
-func NewHandler(pool *client.Pool) *Handler {
-	return &Handler{pool: pool}
+func NewHandler(authPool *client.Pool, executorPool *client.Pool) *Handler {
+	return &Handler{authPool: authPool, executorPool: executorPool}
 }
