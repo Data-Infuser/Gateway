@@ -3,6 +3,7 @@ package handler
 
 import (
 	"encoding/json"
+	"strconv"
 
 	"github.com/labstack/echo/v4"
 	"gitlab.com/promptech1/infuser-gateway/enum"
@@ -13,7 +14,6 @@ import (
 // ExecuteApi: 활용자의 Rest API 요청을 처리함. gRPC를 통해 필요한 데이터를 교환하고 그결과를 JSON 형태로 반환함
 func (h *Handler) ExecuteApi(c echo.Context) error {
 	ctx := c.Request().Context()
-	c.Logger().Debug("Test logger ================")
 
 	token, _ := c.Get("Token").(string)
 
@@ -59,11 +59,37 @@ func (h *Handler) ExecuteApi(c echo.Context) error {
 			"msg":  code.Message(),
 		})
 	} else {
+		var page int32
+		var perPage int32
+
+		pageInt, err := strconv.ParseInt(c.QueryParam("page"), 10, 32)
+		if err != nil {
+			page = 1
+		} else {
+			page = int32(pageInt)
+		}
+
+		cond := map[string]string{}
+
+		for key, val := range c.QueryParams() {
+			if key[0:4] == "cond" {
+				cond[key[5:len(key)-1]] = val[0]
+			}
+		}
+
+		perPageInt, err := strconv.ParseInt(c.QueryParam("perPage"), 10, 32)
+		if err != nil {
+			perPage = 10
+		} else {
+			perPage = int32(perPageInt)
+		}
+
 		apiResult, err := executorClient.GetApiResult(ctx, &grpc_executor.ApiRequest{
-			StageId:   1,
-			ServiceId: 1,
-			Page:      1,
-			PerPage:   10,
+			StageId:   int32(apiAuthRes.AppId),
+			ServiceId: int32(apiAuthRes.OperationId),
+			Page:      page,
+			PerPage:   perPage,
+			Cond:      cond,
 		})
 
 		if err != nil {
@@ -72,7 +98,7 @@ func (h *Handler) ExecuteApi(c echo.Context) error {
 				"msg":  code.Message(),
 			})
 		} else {
-			var datas [10]map[string]interface{}
+			datas := make([]map[string]interface{}, apiResult.CurrentCount)
 
 			for i, v := range apiResult.Data {
 				json.Unmarshal([]byte(v), &datas[i])
@@ -83,6 +109,7 @@ func (h *Handler) ExecuteApi(c echo.Context) error {
 				"perPage":      apiResult.PerPage,
 				"totalCount":   apiResult.TotalCount,
 				"currentCount": apiResult.CurrentCount,
+				"matchCount":   apiResult.MatchCount,
 				"datas":        datas,
 			})
 		}

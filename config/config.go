@@ -53,10 +53,10 @@ func (ctx *Config) getConfEnv() {
 	authorConfig.Tls, _ = strconv.ParseBool(os.Getenv("GATEWAY_AUTHOR_CONFIG_TLS"))
 	authorConfig.CaFile = os.Getenv("GATEWAY_AUTHOR_CONFIG_CA_FILE")
 
-	serverConfig.Host = os.Getenv("GATEWAY_EXECUTOR_CONFIG_HOST")
-	serverConfig.Port = os.Getenv("GATEWAY_EXECUTOR_CONFIG_PORT")
-	authorConfig.Tls, _ = strconv.ParseBool(os.Getenv("GATEWAY_EXECUTOR_CONFIG_TLS"))
-	authorConfig.CaFile = os.Getenv("GATEWAY_EXECUTOR_CONFIG_CA_FILE")
+	executorConfig.Host = os.Getenv("GATEWAY_EXECUTOR_CONFIG_HOST")
+	executorConfig.Port, _ = strconv.Atoi(os.Getenv("GATEWAY_EXECUTOR_CONFIG_PORT"))
+	executorConfig.Tls, _ = strconv.ParseBool(os.Getenv("GATEWAY_EXECUTOR_CONFIG_TLS"))
+	executorConfig.CaFile = os.Getenv("GATEWAY_EXECUTOR_CONFIG_CA_FILE")
 
 	serverConfig.Host = os.Getenv("GATEWAY_SERVER_CONFIG_HOST")
 	serverConfig.Port = os.Getenv("GATEWAY_SERVER_CONFIG_PORT")
