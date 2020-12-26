@@ -5,6 +5,8 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
+	"gitlab.com/promptech1/infuser-gateway/config"
+	constant "gitlab.com/promptech1/infuser-gateway/constant"
 	"gitlab.com/promptech1/infuser-gateway/enum"
 )
 
@@ -16,14 +18,19 @@ var (
 	ErrTokenMissing = echo.NewHTTPError(http.StatusUnauthorized, "missing service key")
 )
 
-// KeyExtractor: Rest API를 통해 전송된(Request Header 또는 Query Param) 사용자 인증키를 추출
-func KeyExtractor() echo.MiddlewareFunc {
+// KeyExtractor ... : Rest API를 통해 전송된(Request Header 또는 Query Param) 사용자 인증키를 추출
+func KeyExtractor(ctx *config.Config) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		headerExtractor := keyFromHeader("Authorization", "Infuser")
 		querytExtractor := keyFromQuery("ServiceKey")
 
 		return func(c echo.Context) error {
 			var token string
+
+			if ctx.Server.ExceptServiceKey {
+				c.Set("Token", constant.DefaultServiceKey)
+				return next(c)
+			}
 
 			token, _ = headerExtractor(c)
 			if len(token) > 0 {

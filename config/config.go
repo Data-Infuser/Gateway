@@ -34,8 +34,9 @@ type Executor struct {
 }
 
 type Server struct {
-	Host string `yaml:"host"`
-	Port string `yaml:"port"`
+	Host             string `yaml:"host"`
+	Port             string `yaml:"port"`
+	ExceptServiceKey bool   `yaml:"exceptServiceKey"`
 }
 
 // 구동 환경(Dev, Stage, Prod)에 따른 설정 정보 정의
@@ -60,6 +61,12 @@ func (ctx *Config) getConfEnv() {
 
 	serverConfig.Host = os.Getenv("GATEWAY_SERVER_CONFIG_HOST")
 	serverConfig.Port = os.Getenv("GATEWAY_SERVER_CONFIG_PORT")
+
+	if os.Getenv("GATEWAY_SERVER_EXCEPT_SERVICE_KEY") == "" {
+		serverConfig.ExceptServiceKey = false
+	} else {
+		serverConfig.ExceptServiceKey, _ = strconv.ParseBool(os.Getenv("GATEWAY_SERVER_EXCEPT_SERVICE_KEY"))
+	}
 
 	ctx.Author = *authorConfig
 	ctx.Server = *serverConfig

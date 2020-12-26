@@ -26,7 +26,7 @@ func main() {
 	r := router.New()
 
 	apiGroup := r.Group("/api")
-	h := handler.NewHandler(grpcAuthorPool, grpcExecutorPool)
+	h := handler.NewHandler(grpcAuthorPool, grpcExecutorPool, conf)
 	h.Register(apiGroup)
 
 	r.Logger.Fatal(r.Start(conf.Server.Host + ":" + conf.Server.Port))

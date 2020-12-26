@@ -7,8 +7,8 @@ import (
 
 // Register: Rest API 대응을 위한 route 정보 정의
 func (h *Handler) Register(apiGroup *echo.Group) {
-	apiGroup.Use(middleware.KeyExtractor())
+	apiGroup.Use(middleware.KeyExtractor(h.ctx))
 
-	apiGroup.GET("/:nameSpace/:version/:operation", h.ExecuteApi)
-	apiGroup.GET("/:nameSpace/:version/:operation/meta", h.ExecuteApi)
+	apiGroup.GET("/:nameSpace/:version/:operation", h.ExecuteAPI)
+	apiGroup.GET("/:nameSpace/:version/:operation/meta", h.ExecuteAPI)
 }
