@@ -6,7 +6,6 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"gitlab.com/promptech1/infuser-gateway/config"
-	constant "gitlab.com/promptech1/infuser-gateway/constant"
 	"gitlab.com/promptech1/infuser-gateway/enum"
 )
 
@@ -28,7 +27,7 @@ func KeyExtractor(ctx *config.Config) echo.MiddlewareFunc {
 			var token string
 
 			if ctx.Server.ExceptServiceKey {
-				c.Set("Token", constant.DefaultServiceKey)
+				c.Set("Token", ctx.Author.MasterKey)
 				return next(c)
 			}
 

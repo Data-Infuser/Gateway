@@ -3,6 +3,7 @@ author:
   port: 9090
   tls: false
   caFile: ""
+  masterKey: "masterKey"
 
 executor:
   host: "localhost"

@@ -20,10 +20,11 @@ type Config struct {
 }
 
 type Author struct {
-	Host   string `yaml:"host"`
-	Port   int    `yaml:"port"`
-	Tls    bool   `yaml:"tls"`
-	CaFile string `yaml:"caFile"`
+	Host      string `yaml:"host"`
+	Port      int    `yaml:"port"`
+	Tls       bool   `yaml:"tls"`
+	CaFile    string `yaml:"caFile"`
+	MasterKey string `yaml:"masterKey"`
 }
 
 type Executor struct {
@@ -53,6 +54,7 @@ func (ctx *Config) getConfEnv() {
 	authorConfig.Port, _ = strconv.Atoi(os.Getenv("GATEWAY_AUTHOR_CONFIG_PORT"))
 	authorConfig.Tls, _ = strconv.ParseBool(os.Getenv("GATEWAY_AUTHOR_CONFIG_TLS"))
 	authorConfig.CaFile = os.Getenv("GATEWAY_AUTHOR_CONFIG_CA_FILE")
+	authorConfig.MasterKey = os.Getenv("GATEWAY_AUTHOR_CONFIG_MASTER_KEY")
 
 	executorConfig.Host = os.Getenv("GATEWAY_EXECUTOR_CONFIG_HOST")
 	executorConfig.Port, _ = strconv.Atoi(os.Getenv("GATEWAY_EXECUTOR_CONFIG_PORT"))
