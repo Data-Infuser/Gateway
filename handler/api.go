@@ -85,8 +85,8 @@ func (h *Handler) ExecuteAPI(c echo.Context) error {
 		}
 
 		apiResult, err := executorClient.GetApiResult(ctx, &grpc_executor.ApiRequest{
-			ServiceId: int32(apiAuthRes.AppId),
-			StageId:   int32(apiAuthRes.OperationId),
+			StageId:   int32(apiAuthRes.AppId),
+			ServiceId: int32(apiAuthRes.OperationId),
 			Page:      page,
 			PerPage:   perPage,
 			Cond:      cond,
