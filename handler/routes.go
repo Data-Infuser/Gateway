@@ -10,5 +10,5 @@ func (h *Handler) Register(apiGroup *echo.Group) {
 	apiGroup.Use(middleware.KeyExtractor(h.ctx))
 
 	apiGroup.GET("/:nameSpace/:version/:operation", h.ExecuteAPI)
-	apiGroup.GET("/:nameSpace/:version/:operation/meta", h.ExecuteAPI)
+	apiGroup.GET("/:nameSpace/:version/:operation/meta", h.FindMeta)
 }
