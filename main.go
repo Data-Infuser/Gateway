@@ -2,8 +2,10 @@ package main
 
 import (
 	"log"
+	"net/http"
 	"os"
 
+	"github.com/labstack/echo/v4"
 	"gitlab.com/promptech1/infuser-gateway/client"
 	"gitlab.com/promptech1/infuser-gateway/config"
 	"gitlab.com/promptech1/infuser-gateway/handler"
@@ -24,6 +26,10 @@ func main() {
 	grpcExecutorPool := client.NewGRPCExecutorPool(conf)
 
 	r := router.New()
+
+	r.GET("/", func(c echo.Context) error {
+		return c.String(http.StatusOK, "OpenAPI Data Service")
+	})
 
 	apiGroup := r.Group("/api")
 	h := handler.NewHandler(grpcAuthorPool, grpcExecutorPool, conf)
