@@ -27,7 +27,7 @@ func main() {
 
 	r := router.New()
 
-	r.GET("/", func(c echo.Context) error {
+	r.GET("/hc", func(c echo.Context) error {
 		return c.String(http.StatusOK, "OpenAPI Data Service")
 	})
 
