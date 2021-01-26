@@ -7,7 +7,7 @@ import (
 	grpc_executor "gitlab.com/promptech1/infuser-gateway/infuser-protobuf/gen/proto/executor"
 )
 
-type Results struct {
+type MetaResults struct {
 	Meta []*grpc_executor.SchemaMeta `json:"cols" xml:"col"`
 }
 
@@ -41,14 +41,14 @@ func (h *Handler) FindMeta(c echo.Context) error {
 
 	if dataType == "XML" {
 		tmp := struct {
-			Results
+			MetaResults
 			XMLName struct{} `xml:"cols"`
-		}{Results: Results{
+		}{MetaResults: MetaResults{
 			Meta: schemaResult.Meta,
 		}}
 		return c.XML(enum.Valid.HttpCode(), tmp)
 	} else {
-		return c.JSON(enum.Valid.HttpCode(), &Results{
+		return c.JSON(enum.Valid.HttpCode(), &MetaResults{
 			Meta: schemaResult.Meta,
 		})
 	}

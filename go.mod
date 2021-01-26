@@ -3,6 +3,7 @@ module gitlab.com/promptech1/infuser-gateway
 go 1.14
 
 require (
+	github.com/clbanning/mxj/v2 v2.3.2
 	github.com/go-playground/validator/v10 v10.3.0
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
 	github.com/golang/protobuf v1.4.2

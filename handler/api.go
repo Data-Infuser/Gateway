@@ -4,7 +4,9 @@ package handler
 import (
 	"encoding/json"
 	"strconv"
+	"strings"
 
+	"github.com/clbanning/mxj/v2"
 	"github.com/labstack/echo/v4"
 	"gitlab.com/promptech1/infuser-gateway/enum"
 	grpc_author "gitlab.com/promptech1/infuser-gateway/infuser-protobuf/gen/proto/author"
@@ -106,20 +108,54 @@ func (h *Handler) ExecuteAPI(c echo.Context) error {
 				"msg":  code.Message(),
 			})
 		} else {
-			datas := make([]map[string]interface{}, apiResult.CurrentCount)
+			if dataType == "XML" {
+				var result = map[string]interface{}{
+					"page":         apiResult.Page,
+					"perPage":      apiResult.PerPage,
+					"totalCount":   apiResult.TotalCount,
+					"currentCount": apiResult.CurrentCount,
+					"matchCount":   apiResult.MatchCount,
+				}
 
-			for i, v := range apiResult.Data {
-				json.Unmarshal([]byte(v), &datas[i])
+				var tmp map[string]interface{}
+				var xmlValues []string
+
+				for _, v := range apiResult.Data {
+					json.Unmarshal([]byte(v), &tmp)
+					mv := mxj.Map(tmp)
+					xmlValue, _ := mv.Xml("item")
+					xmlValues = append(xmlValues, string(xmlValue))
+				}
+
+				result["data"] = strings.Join(xmlValues[:], "")
+
+				mv := mxj.Map(result)
+
+				xmlResults, err := mv.Xml("results")
+				if err != nil {
+					h.ctx.Logger.WithField(
+						"return err", err.Error(),
+					).Error("XML Marshal result")
+				}
+
+				c.Response().Header().Set(echo.HeaderContentType, echo.MIMEApplicationXMLCharsetUTF8)
+				return c.String(code.HttpCode(), string(xmlResults))
+			} else {
+				data := make([]map[string]interface{}, apiResult.CurrentCount)
+
+				for i, v := range apiResult.Data {
+					json.Unmarshal([]byte(v), &data[i])
+				}
+
+				return c.JSON(code.HttpCode(), map[string]interface{}{
+					"page":         apiResult.Page,
+					"perPage":      apiResult.PerPage,
+					"totalCount":   apiResult.TotalCount,
+					"currentCount": apiResult.CurrentCount,
+					"matchCount":   apiResult.MatchCount,
+					"data":         data,
+				})
 			}
-
-			return c.JSON(code.HttpCode(), map[string]interface{}{
-				"page":         apiResult.Page,
-				"perPage":      apiResult.PerPage,
-				"totalCount":   apiResult.TotalCount,
-				"currentCount": apiResult.CurrentCount,
-				"matchCount":   apiResult.MatchCount,
-				"datas":        datas,
-			})
 		}
 	}
 
