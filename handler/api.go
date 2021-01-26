@@ -14,6 +14,7 @@ import (
 // ExecuteAPI: 활용자의 Rest API 요청을 처리함. gRPC를 통해 필요한 데이터를 교환하고 그결과를 JSON 형태로 반환함
 func (h *Handler) ExecuteAPI(c echo.Context) error {
 	ctx := c.Request().Context()
+	dataType := c.QueryParam("returnType")
 
 	token, _ := c.Get("Token").(string)
 
@@ -30,10 +31,17 @@ func (h *Handler) ExecuteAPI(c echo.Context) error {
 	executorConn, err := h.executorPool.Get(ctx)
 	if err != nil {
 		code := enum.InternalException
-		return c.JSON(code.HttpCode(), map[string]interface{}{
-			"code": code,
-			"msg":  code.Message(),
-		})
+		if dataType == "" || dataType == "JSON" {
+			return c.JSON(code.HttpCode(), map[string]interface{}{
+				"code": code,
+				"msg":  code.Message(),
+			})
+		} else {
+			return c.XML(code.HttpCode(), map[string]interface{}{
+				"code": code,
+				"msg":  code.Message(),
+			})
+		}
 	}
 	defer executorConn.Close()
 

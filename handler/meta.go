@@ -1,16 +1,19 @@
 package handler
 
 import (
-	"fmt"
-
 	"github.com/labstack/echo/v4"
 	"gitlab.com/promptech1/infuser-gateway/enum"
 	"gitlab.com/promptech1/infuser-gateway/handler/middleware"
 	grpc_executor "gitlab.com/promptech1/infuser-gateway/infuser-protobuf/gen/proto/executor"
 )
 
+type Results struct {
+	Meta []*grpc_executor.SchemaMeta `json:"cols" xml:"col"`
+}
+
 func (h *Handler) FindMeta(c echo.Context) error {
 	ctx := c.Request().Context()
+	dataType := c.QueryParam("returnType")
 
 	authRes, authCode := middleware.CheckAuth(h.authPool, c)
 	if !authCode.Valid() {
@@ -36,9 +39,17 @@ func (h *Handler) FindMeta(c echo.Context) error {
 		ServiceId: int32(authRes.OperationId),
 	})
 
-	fmt.Printf("%+v", schemaResult)
-
-	return c.JSON(enum.Valid.HttpCode(), map[string]interface{}{
-		"cols": schemaResult.Meta,
-	})
+	if dataType == "XML" {
+		tmp := struct {
+			Results
+			XMLName struct{} `xml:"cols"`
+		}{Results: Results{
+			Meta: schemaResult.Meta,
+		}}
+		return c.XML(enum.Valid.HttpCode(), tmp)
+	} else {
+		return c.JSON(enum.Valid.HttpCode(), &Results{
+			Meta: schemaResult.Meta,
+		})
+	}
 }
