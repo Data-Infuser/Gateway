@@ -19,6 +19,7 @@ func New() *echo.Echo {
 
 	e.Use(middlewareLogging)
 	e.HTTPErrorHandler = errorHandler
+	e.IPExtractor = echo.ExtractIPFromXFFHeader()
 
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: []string{"*"},
