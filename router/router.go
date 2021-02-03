@@ -13,6 +13,11 @@ import (
 
 // New: Rest API 서버 설정 정의 및 구동 모듈을 반환
 func New() *echo.Echo {
+	echo.NotFoundHandler = func(c echo.Context) error {
+		// render your 404 page
+		return c.String(http.StatusNotFound, "not found service")
+	}
+
 	e := echo.New()
 
 	e.Pre(middleware.RemoveTrailingSlash())
