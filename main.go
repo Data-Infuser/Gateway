@@ -31,11 +31,11 @@ func main() {
 		return c.String(http.StatusOK, "OpenAPI Data Service")
 	})
 
-	authGroup := r.Group("/auth")
-	apiGroup := r.Group("/api")
-
 	h := handler.NewHandler(grpcAuthorPool, grpcExecutorPool, conf)
+	authGroup := r.Group("/auth")
 	h.RegisterAuth(authGroup)
+
+	apiGroup := r.Group("/api")
 	h.RegisterApi(apiGroup)
 
 	r.Logger.Fatal(r.Start(conf.Server.Host + ":" + conf.Server.Port))
