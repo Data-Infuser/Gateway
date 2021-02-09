@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -24,14 +25,12 @@ func (h *Handler) RegisterPortalKey(c echo.Context) error {
 
 	ip := c.RealIP()
 
-	logrus.WithFields(logrus.Fields{
-		"ip": ip,
-	}).Info("call poratl key")
-
 	isAllow := Contains(allowIpList, ip)
 	logrus.WithFields(logrus.Fields{
+		"ip":      ip,
 		"isAllow": isAllow,
 	}).Info("call poratl key")
+
 	if !isAllow {
 		return c.JSON(http.StatusBadRequest, map[string]interface{}{
 			"msg": "허가되지 않은 접근 입니다.",
@@ -60,6 +59,10 @@ func (h *Handler) RegisterPortalKey(c echo.Context) error {
 
 	authConn, err := h.authPool.Get(ctx)
 	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err.Error(),
+		}).Error("Exception in get grpc connection")
+
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
 			"msg": "Author 연계 과정 중 알 수 없는 오류가 발생하였습니다. 문제가 지속되면 관리자에게 문의하세요",
 		})
@@ -71,26 +74,19 @@ func (h *Handler) RegisterPortalKey(c echo.Context) error {
 		Token:     appToken.Token,
 	})
 
-	logrus.WithFields(logrus.Fields{
-		"appTokenRes": appTokenRes,
-		"err":         err,
-	}).Info("call poratl key")
+	if err != nil || appTokenRes.Code != grpc_author.AppTokenRes_OK {
+		logrus.WithFields(logrus.Fields{
+			"err": err.Error(),
+		}).Error("Exception in portal token regist")
 
-	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
-			"msg": err.Error(),
+			"msg": fmt.Sprintf("%s, %s", appTokenRes.Message, err.Error()),
 		})
 	}
 
-	if appTokenRes.Code == grpc_author.AppTokenRes_OK {
-		return c.JSON(http.StatusOK, map[string]interface{}{
-			"msg": "정상처리 되었습니다.",
-		})
-	} else {
-		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
-			"msg": appTokenRes.Message,
-		})
-	}
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"msg": "정상처리 되었습니다.",
+	})
 }
 
 // Contains tells whether a contains x.
