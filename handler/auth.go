@@ -15,28 +15,6 @@ func (h *Handler) RegisterPortalKey(c echo.Context) error {
 		"action": "RegisterPortalKey",
 	}).Info("call poratl key")
 
-	allowIpList := []string{
-		"211.196.56.72", "211.212.64.147", "211.196.56.72",
-		"110.13.128.178", "175.106.92.220", "175.106.92.217",
-		"61.255.202.125", "58.233.200.26",
-		"27.101.219.12", "27.101.219.11",
-		"127.0.0.1",
-	}
-
-	ip := c.RealIP()
-
-	isAllow := Contains(allowIpList, ip)
-	logrus.WithFields(logrus.Fields{
-		"ip":      ip,
-		"isAllow": isAllow,
-	}).Info("call poratl key")
-
-	if !isAllow {
-		return c.JSON(http.StatusBadRequest, map[string]interface{}{
-			"msg": "허가되지 않은 접근 입니다.",
-		})
-	}
-
 	token, _ := c.Get("Token").(string)
 	logrus.WithFields(logrus.Fields{
 		"token": token,
