@@ -129,6 +129,11 @@ func (h *Handler) ExecuteAPI(c echo.Context) error {
 
 			for _, v := range apiResult.Data {
 				json.Unmarshal([]byte(v), &tmp)
+				for k := range tmp {
+					if tmp[k] == nil {
+						tmp[k] = ""
+					}
+				}
 				mv := mxj.Map(tmp)
 				xmlValue, _ := mv.Xml("item")
 				xmlValues = append(xmlValues, string(xmlValue))
