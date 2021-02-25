@@ -21,7 +21,7 @@ var (
 func KeyExtractor(ctx *config.Config) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		headerExtractor := keyFromHeader("Authorization", "Infuser")
-		querytExtractor := keyFromQuery("ServiceKey")
+		querytExtractor := keyFromQuery("serviceKey")
 
 		return func(c echo.Context) error {
 			var token string
