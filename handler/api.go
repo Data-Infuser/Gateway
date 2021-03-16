@@ -138,6 +138,8 @@ func (h *Handler) ExecuteAPI(c echo.Context) error {
 					if tmp[k] == nil {
 						tmp[k] = ""
 					}
+					str, _ := tmp[k].(string)
+					tmp[k] = strings.ReplaceAll(str, "&", "&#038;")
 				}
 				mv := mxj.Map(tmp)
 				xmlValue, _ := mv.Xml("item")
