@@ -101,6 +101,11 @@ func (h *Handler) ExecuteAPI(c echo.Context) error {
 		perPage = 10
 	}
 
+	if len(apiAuthRes.ProxyEndpoint) > 0 {
+		h.Rp(c, apiAuthRes.ProxyEndpoint)
+		return nil
+	}
+
 	apiResult, err := executorClient.GetApiResult(ctx, &grpc_executor.ApiRequest{
 		StageId:   int32(apiAuthRes.AppId),
 		ServiceId: int32(apiAuthRes.OperationId),
