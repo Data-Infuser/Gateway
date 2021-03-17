@@ -139,7 +139,8 @@ func (h *Handler) ExecuteAPI(c echo.Context) error {
 						tmp[k] = ""
 					}
 					str, _ := tmp[k].(string)
-					tmp[k] = strings.ReplaceAll(str, "&", "&#038;")
+					str = strings.ReplaceAll(str, "&", "&#038;")
+					tmp[k] = html.EscapeString(str)	// escaping html special chracters
 				}
 				mv := mxj.Map(tmp)
 				xmlValue, _ := mv.Xml("item")
