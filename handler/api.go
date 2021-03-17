@@ -101,6 +101,11 @@ func (h *Handler) ExecuteAPI(c echo.Context) error {
 		perPage = 10
 	}
 
+	if len(apiAuthRes.ProxyEndpoint) > 0 {
+		h.Rp(c, apiAuthRes.ProxyEndpoint)
+		return nil
+	}
+
 	apiResult, err := executorClient.GetApiResult(ctx, &grpc_executor.ApiRequest{
 		StageId:   int32(apiAuthRes.AppId),
 		ServiceId: int32(apiAuthRes.OperationId),
@@ -134,7 +139,7 @@ func (h *Handler) ExecuteAPI(c echo.Context) error {
 						tmp[k] = ""
 					}
 					str, _ := tmp[k].(string)
-					tmp[k] = strings.ReplaceAll(str, "&", "&#038;") 
+					tmp[k] = strings.ReplaceAll(str, "&", "&#038;")
 				}
 				mv := mxj.Map(tmp)
 				xmlValue, _ := mv.Xml("item")
